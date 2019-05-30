@@ -53,7 +53,7 @@ function xScale_update(sales_data, chosenXAxis){
   /* Generate yScale based on selected value */
 
   const xLinearScale = d3.scaleLinear()
-        .domain([0, d3.max(sales_data, d => d[chosenXAxis])])
+        .domain([0, d3.max(sales_data, max => max[chosenXAxis])])
         .range([0, chartWidth]);
 
   return xLinearScale
@@ -90,12 +90,38 @@ d3.csv('/assets/data/data.csv')
 
         // Set Scales
         const yScale = d3.scaleLinear()
-            .domain([0, 20])
+            .domain([-2, 20])
             .range([chartHeight, 0]);
 
         const xScale = d3.scaleLinear()
-            .domain([0, 20])
+            .domain([-2, 20])
             .range([0, chartWidth])
+        console.log(chartHeight, chartWidth);
+
+         // Create the circles using data binding
+        const circleGroup = svg.selectAll('circle')
+        .data(data)
+            .enter()
+        .append('circle')
+        .attr('cx', d => xScale(d['healthcare']))
+        .attr('cy', d => yScale(d['poverty']))
+        .attr('r', 10)
+        .attr('fill', 'blue');
+        
+
+            const textGroup = svg.selectAll('text')
+            .data(data)
+            .enter()
+            .append('text')
+            .attr('x', d => xScale(d['healthcare']))
+            .attr('y', d => yScale(d['poverty']))
+            .attr('fill', 'red')
+            .attr('font-size','10px')
+            .attr('text-anchor','middle')
+          
+            .text(d => d['abbr']);
+            //console.log(data);
+
 
         // Create axes for Svg
         const yAxis_func = d3.axisLeft(yScale);
@@ -112,33 +138,23 @@ d3.csv('/assets/data/data.csv')
             .attr('id', 'yaxis')
             .call(yAxis_func);
 
-        // Create the circles using data binding
-        const circleGroup = svg.selectAll('circle')
-            .data(data)
-                .enter()
-            .append('circle')
-            .attr('cx', d => xScale(d['healthcare']))
-            .attr('cy', d => yScale(d['poverty']))
-            .attr('r', 10)
-            .attr('fill', 'blue');
+          let array = [];
+        for (const key in data) {
+          if (data.hasOwnProperty(key))
+          array.push(data[key]['abbr']);
+        }
+
+   
+
         //    .append('text')
         //    .attr('text-anchor','middle')
         //    .attr('stroke','black')
         //    .attr('text', 'A');
          //   .attr('text', d => d['abbr']);
-
-         const textGroup = svg.selectAll('text')
-         .data(data)
-             .enter()
-         .append('text')
-         .attr('x', d => xScale(d['healthcare']))
-         .attr('y', d => yScale(d['poverty']))
-         .attr('fill', 'red')
-         .attr('font-size','10px')
-         .attr('text-anchor','middle')
-         .text(d => d['abbr']);
-      //   .attr('text', d => d['abbr']);
-
+         
+  
+         
+     
         labelsGroup.selectAll('text')
             .on('click', function() {
 
